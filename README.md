@@ -4,7 +4,9 @@ A Virtual File System (VFS) written in C.
 
 ## Description
 
-VFS is a learning project that implements a simple virtual file system in C. The goal is to build a modular filesystem that supports storage management, shell interaction, and file system operations.
+VFS is a simple imlementation of a unix based file system.
+It only supports basic files.
+In this case, / is the origin of the file tree and does not represent users.
 
 > **Project Status:** Early development (`v0.1.0`)
 

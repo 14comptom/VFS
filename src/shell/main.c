@@ -11,13 +11,15 @@
 
 #include "utils.h"
 #include "storage.h"
+#include "shell.h"
 
 void start_VFS(void){
     vfs_storage_init();
+    vfs_shell_init();
 
 }
 int main(void){
-    printf("VFS starting...\n");
+    utils_print_color(stdout, "Starting vfs....", color_cyan);
     utils_sleep(400);
 
     start_VFS();
