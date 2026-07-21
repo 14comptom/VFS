@@ -1,1 +1,0 @@
-gcc -Iinclude src/shell/main.c src/lib/utils.c -o hello
