@@ -15,20 +15,19 @@ typedef struct {
 } command;
 
 
-char* prompt_user(char* ib){
+char* prompt_user(char* ib) {
     printf("&vfs> ");
     fflush(stdout);
 
-    if(fgets(ib, INPUT_BUFFER_SIZE, stdin) != NULL) {
-        ib[strcspn(ib, "\n")] = '\0';
-        
+    if (fgets(ib, INPUT_BUFFER_SIZE, stdin) != NULL) {
+        ib[strcspn(ib, "\r\n")] = '\0';
+
+        if (ib[0] == '\0') {
+            return NULL;
+        }
         return ib;
     }
-    
-    if(ib[0] == '\n'){
-        return NULL;
-    }
-return ib;
+    return NULL;
 }
 
 int tokenize_input(char* ib, command *uc) {
@@ -67,7 +66,7 @@ int tokenize_input(char* ib, command *uc) {
         }
         uc->argc++;
 
-        if(uc->argc > MAX_ARGUMENTS) {
+        if(uc->argc >= MAX_ARGUMENTS) {
             return 1;
         }
 
@@ -81,30 +80,116 @@ int tokenize_input(char* ib, command *uc) {
     parameters to the specific command.
 */
 int cmd_ls(command *uc) {
-    for(int i=0; i<uc->argc; i++) {
-        printf("Argument %d: %s\n", i, uc->argv[i]);
-    }
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
     return 0;
 }
 
-int process_command( char* ib) {
+int cmd_mkdir(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+int cmd_cd(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+int cmd_touch(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+int cmd_sudo(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+int cmd_sysshut(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+int cmd_cat(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+int cmd_pwd(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+int cmd_man(command *uc) {
+    printf("%s\n", uc->argv[0]);
+    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
+                     color_yellow);
+    return 0;
+}
+
+
+
+
+int process_command(char* ib) {
     command user_commands;
 
-     /* Strip the input to required arguments.*/
-     if(tokenize_input(ib, &user_commands) != 0) {
-        utils_print_color(stderr, "[WARNING] SHELL: Too manu arguments!", 
+    if (tokenize_input(ib, &user_commands) != 0) {
+        utils_print_color(stderr, "[WARNING] SHELL: Too many arguments!\n", 
                         color_yellow);
         return 1;
-     }
+    }
 
-     if(strcmp(user_commands.argv[0], "ls") == 0) return cmd_ls(&user_commands);
+    if (user_commands.argc == 0) {
+        return 0;
+    }
+
+    if(strcmp(user_commands.argv[0], "ls") == 0) return cmd_ls(&user_commands);
+    if(strcmp(user_commands.argv[0], "mkdir") == 0) return 
+                                                    cmd_mkdir(&user_commands);
+    if(strcmp(user_commands.argv[0], "touch") == 0) return 
+                                                    cmd_touch(&user_commands);
+    if(strcmp(user_commands.argv[0], "cd") == 0) return cmd_cd(&user_commands);                                                   
+    if(strcmp(user_commands.argv[0], "sudo") == 0) return 
+                                                    cmd_sudo(&user_commands);
+    if(strcmp(user_commands.argv[0], "sysshut") == 0) return 
+                                                    cmd_sysshut(&user_commands);
+    if(strcmp(user_commands.argv[0], "cat") == 0) return 
+                                                    cmd_cat(&user_commands);  
+    if(strcmp(user_commands.argv[0], "pwd") == 0) return 
+                                                    cmd_pwd(&user_commands);  
+    if(strcmp(user_commands.argv[0], "man") == 0) return 
+                                                    cmd_man(&user_commands); 
+    else {
+    char msg[128];
+    snprintf(msg, sizeof(msg), "[WARNING] SHELL: '%s' is not recognized as an" 
+                                "internal command", 
+             user_commands.argv[0]);
+    utils_print_color(stderr, msg, color_yellow);
+    }                                                 
+                                                    
+                                                                                                                                                                                                       
+        
+    
     
     return 0;
-    
 }
 
 void display_text(void){
-    
 
 }
 
