@@ -29,7 +29,7 @@
 
  /*Ensure crossplatform compatibility*/
 void utils_sleep(const unsigned int miliseconds){
-    
+
     #ifdef _WIN32
         Sleep(miliseconds);
     #elif __linux__
@@ -48,7 +48,7 @@ static bool convert_string_to_int(const char *buffer, int *output_value) {
 
     long val = strtol(buffer, &endptr, 10);
 
-    
+
     if (endptr == buffer || *endptr != '\n') {
         return false;
     }
@@ -57,7 +57,7 @@ static bool convert_string_to_int(const char *buffer, int *output_value) {
     return true;
 }
 
-static char* validate_input(const unsigned int buffer_size, char *buffer, 
+static char* validate_input(const unsigned int buffer_size, char *buffer,
                     const char *message){
 
     if(message == NULL){
@@ -67,16 +67,16 @@ static char* validate_input(const unsigned int buffer_size, char *buffer,
     if(fgets(buffer, buffer_size, stdin) == NULL)   {
         fprintf(stderr, "Error [Invalid Input]: Failed to read input.\n");
         return FAILED_CHAR_FUNCTION;
-    } 
+    }
     return buffer;
 }
 
 static bool valid_parameters(size_t buffer_size, char *buffer){
      /*confirm correct input early enough to prevent segmentation fault*/
     if(buffer_size == 0 || buffer == NULL){
-        fprintf(stderr,"Error [Missing Parameters]: Buffer size and buffer" 
+        fprintf(stderr,"Error [Missing Parameters]: Buffer size and buffer"
                         "are required parameters.\n");
-        return false; 
+        return false;
     }
 
     else{
@@ -84,11 +84,11 @@ static bool valid_parameters(size_t buffer_size, char *buffer){
     }
 }
 
-/*pass the 'converter' as a parameter to the loop function*/ 
-static bool loop_input_prompt(const unsigned int max_attempts, 
+/*pass the 'converter' as a parameter to the loop function*/
+static bool loop_input_prompt(const unsigned int max_attempts,
                             const char *message,
-                              char *buffer, const unsigned int buffer_size, 
-                              int *out_value, ConvertFunc converter) { 
+                              char *buffer, const unsigned int buffer_size,
+                              int *out_value, ConvertFunc converter) {
     for (unsigned int i = 0; i < max_attempts; i++) {
         printf("%s", message);
         printf("Attempt %d of %d: ", i + 1, max_attempts);
@@ -99,23 +99,23 @@ static bool loop_input_prompt(const unsigned int max_attempts,
         }
 
         if (converter(buffer, out_value)) {
-            return true; 
+            return true;
         }
     }
-    return false; 
+    return false;
 }
 
 /*
     *function call requires 5 parameters.
     *compulsory parameters are in the order: buffer size,
     *buffer and pointer to end value.
-    *optional message parameter is represented bu NULL and 
+    *optional message parameter is represented bu NULL and
     *if the program does not need a loop it is denoted by -1.
 */
 
 bool utils_int(size_t buffer_size, char *buffer, const char *message,
                 int max_attempts, int *output_value){
-    
+
     if(!valid_parameters(buffer_size, buffer)){
         return false;
     }
@@ -129,25 +129,25 @@ bool utils_int(size_t buffer_size, char *buffer, const char *message,
         if (validate_input(buffer_size, buffer, message) == NULL) return false;
         if (convert_string_to_int(buffer, output_value)) return true;
 
-        return loop_input_prompt(max_attempts, message, buffer, buffer_size, 
+        return loop_input_prompt(max_attempts, message, buffer, buffer_size,
                          output_value, convert_string_to_int);
     }
     return false;
 }
 
-static bool float_loop_input_prompt(const unsigned int max_attempts, 
+static bool float_loop_input_prompt(const unsigned int max_attempts,
                                     const char *message,
-                                    char *buffer, const unsigned int buffer_size, 
-                                    float *out_value, FloatConvertFunc converter) { 
+                                    char *buffer, const unsigned int buffer_size,
+                                    float *out_value, FloatConvertFunc converter) {
     for (unsigned int i = 0; i < max_attempts; i++) {
         printf("%s", message);
         printf("Attempt %d of %d: ", i + 1, max_attempts);
         fflush(stdout);
 
         if (validate_input(buffer_size, buffer, message) == NULL) return false;
-        if (converter(buffer, out_value)) return true; 
+        if (converter(buffer, out_value)) return true;
     }
-    return false; 
+    return false;
 }
 
 static bool convert_string_to_float(const char* buffer, float *output_value) {
@@ -169,7 +169,7 @@ static bool convert_string_to_float(const char* buffer, float *output_value) {
 /*
 *Function call is similar to utils_int() with parameters and arguments.
 */
-bool utils_float(size_t buffer_size, char* buffer, const char* message, 
+bool utils_float(size_t buffer_size, char* buffer, const char* message,
                  int max_attempts, float *output_value) {
 
     if(!valid_parameters(buffer_size, buffer)){
@@ -185,7 +185,7 @@ bool utils_float(size_t buffer_size, char* buffer, const char* message,
         if (validate_input(buffer_size, buffer, message) == NULL) return false;
         if (convert_string_to_float(buffer, output_value)) return true;
 
-        return float_loop_input_prompt(max_attempts, message, buffer, buffer_size, 
+        return float_loop_input_prompt(max_attempts, message, buffer, buffer_size,
                                        output_value, convert_string_to_float);
     }
     return false;

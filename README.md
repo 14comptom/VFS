@@ -8,6 +8,9 @@ VFS is a simple imlementation of a unix based file system.
 It only supports basic files.
 In this case, / is the origin of the file tree and does not represent users.
 
+## Warning
+VFS is not a kernel level file system and does, just a basic beginer implemtnation if a file system running on a host os.
+
 > **Project Status:** Early development (`v0.1.0`)
 
 ## Features

@@ -4,6 +4,7 @@
 
 #include "storage.h"
 #include "utils.h"
+#include "errors.h"
 
 #define INPUT_BUFFER_SIZE 256
 #define OUTPUT_BUFFER_SIZE 2048
@@ -46,7 +47,7 @@ int tokenize_input(char* ib, command *uc) {
 
         if(ib[i] == '\0') { /*prevent infinite assignment.*/
             break;
-        } 
+        }
 
         uc->argv[uc->argc] = &ib[i];
 
@@ -76,69 +77,60 @@ int tokenize_input(char* ib, command *uc) {
 
 /*
     Funtion calls to specific commands
-    number of parameters are checked here to prevent excess 
+    number of parameters are checked here to prevent excess
     parameters to the specific command.
 */
 int cmd_ls(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_mkdir(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_cd(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_touch(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_sudo(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_sysshut(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_cat(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_pwd(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
 int cmd_man(command *uc) {
     printf("%s\n", uc->argv[0]);
-    utils_print_color(stderr, "[WARNING] SHELL: Command is not yet implemented.", 
-                     color_yellow);
+    set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
@@ -149,8 +141,9 @@ int process_command(char* ib) {
     command user_commands;
 
     if (tokenize_input(ib, &user_commands) != 0) {
-        utils_print_color(stderr, "[WARNING] SHELL: Too many arguments!\n", 
+        utils_print_color(stderr, "[WARNING] SHELL: Too many arguments!\n",
                         color_yellow);
+        set_error(TOO_MANY_ARGUMENTS, true);
         return 1;
     }
 
@@ -159,33 +152,34 @@ int process_command(char* ib) {
     }
 
     if(strcmp(user_commands.argv[0], "ls") == 0) return cmd_ls(&user_commands);
-    if(strcmp(user_commands.argv[0], "mkdir") == 0) return 
+    if(strcmp(user_commands.argv[0], "mkdir") == 0) return
                                                     cmd_mkdir(&user_commands);
-    if(strcmp(user_commands.argv[0], "touch") == 0) return 
+    if(strcmp(user_commands.argv[0], "touch") == 0) return
                                                     cmd_touch(&user_commands);
-    if(strcmp(user_commands.argv[0], "cd") == 0) return cmd_cd(&user_commands);                                                   
-    if(strcmp(user_commands.argv[0], "sudo") == 0) return 
+    if(strcmp(user_commands.argv[0], "cd") == 0) return cmd_cd(&user_commands);
+    if(strcmp(user_commands.argv[0], "sudo") == 0) return
                                                     cmd_sudo(&user_commands);
-    if(strcmp(user_commands.argv[0], "sysshut") == 0) return 
+    if(strcmp(user_commands.argv[0], "sysshut") == 0) return
                                                     cmd_sysshut(&user_commands);
-    if(strcmp(user_commands.argv[0], "cat") == 0) return 
-                                                    cmd_cat(&user_commands);  
-    if(strcmp(user_commands.argv[0], "pwd") == 0) return 
-                                                    cmd_pwd(&user_commands);  
-    if(strcmp(user_commands.argv[0], "man") == 0) return 
-                                                    cmd_man(&user_commands); 
+    if(strcmp(user_commands.argv[0], "cat") == 0) return
+                                                    cmd_cat(&user_commands);
+    if(strcmp(user_commands.argv[0], "pwd") == 0) return
+                                                    cmd_pwd(&user_commands);
+    if(strcmp(user_commands.argv[0], "man") == 0) return
+                                                    cmd_man(&user_commands);
     else {
     char msg[128];
-    snprintf(msg, sizeof(msg), "[WARNING] SHELL: '%s' is not recognized as an" 
-                                "internal command", 
+    snprintf(msg, sizeof(msg), "[WARNING] SHELL: '%s' is not recognized as an"
+                                "internal command",
              user_commands.argv[0]);
+    // Avoided VFS/include/errors.h
     utils_print_color(stderr, msg, color_yellow);
-    }                                                 
-                                                    
-                                                                                                                                                                                                       
-        
-    
-    
+    }
+
+
+
+
+
     return 0;
 }
 
@@ -202,15 +196,16 @@ void start_session(void){
         }
 
         process_command(input_buffer);
-        
+
         display_text();
     }
 }
 
  int vfs_shell_init() {
     utils_print_color(stderr, "[INFO] SHELL: Shell loaded!", color_green);
+    set_error(SHELL_LOADED, true);
     utils_sleep(200);
-    utils_print_color(stderr, "[INFO] SHELL: Shell starting..\n", color_green);
+    set_error(SHELL_STARTING, true);
 
     start_session();
 

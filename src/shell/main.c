@@ -1,17 +1,20 @@
 /*
     *FILE:       main.c
     *AUTHOR:     Comptom
-    *NOTES:      
+    *NOTES:
     *WARNINGS   *
-                
+
     *LICENCE    *Licensed under MIT License.
 */
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "utils.h"
 #include "storage.h"
 #include "shell.h"
+#include "errors.h"
+
+#include <stdbool.h>
 
 void start_VFS(void){
     vfs_storage_init();
@@ -19,10 +22,8 @@ void start_VFS(void){
 
 }
 int main(void){
-    utils_print_color(stdout, "Starting vfs....", color_cyan);
+    set_error(STARTING, true);
     utils_sleep(400);
 
     start_VFS();
 }
-
-
