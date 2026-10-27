@@ -1,6 +1,6 @@
 # Error handling in VFS
 
-Errors are defined in [VFS/include/errors.h](VFS/include/errors.h) and [VFS/lib/errors.c](VFS/lib/errors.c).
+Errors are defined in [errors.h](errors.h) and [errors.c](../src/lib/errors.c).
 
 errors are resolved by a single look up table that identifies the specific error handling fucntion to that spefic error.
 ```c
