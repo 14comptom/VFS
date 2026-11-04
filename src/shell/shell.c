@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "storage.h"
+//#include "storage.h"
 #include "utils.h"
 #include "errors.h"
 
@@ -13,7 +13,7 @@
 typedef struct {
     int argc;   /*track the number of parametrs*/
     char* argv[MAX_ARGUMENTS]; /*pointer to input characters*/
-} command;
+} Command;
 
 
 char* prompt_user(char* ib) {
@@ -31,47 +31,63 @@ char* prompt_user(char* ib) {
     return NULL;
 }
 
-int tokenize_input(char* ib, command *uc) {
+int tokenize_input(char* ib, Command *uc ) {
     uc->argc = 0;
-    int in_quotes = 0;
-    int i = 0;
+    char* src=ib;
+    int inquotes = 0;
 
-    /*
-        Make sure input is read only up to the end of the input
-        and stop the loop.
-    */
-    while(ib[i] != '\0') {
-        while(ib[i] == ' ') {
-            i++;
+    while(*src != '\0') {
+        //skip whitespace or tab.
+        while((*src == ' ' || *src == '\t') && !inquotes) {
+            src+=1;
         }
+        if (*src == '\0') break;
 
-        if(ib[i] == '\0') { /*prevent infinite assignment.*/
-            break;
-        }
+        if (*src == '\"') {
+            inquotes = 1;
+            src++; // Step past opening quote '"'
 
-        uc->argv[uc->argc] = &ib[i];
-
-        while(ib[i] != '\0') {
-            if(ib[i] == '"') {
-                in_quotes = !in_quotes;
+            // Skip leading spaces or tabs INSIDE the quote
+            while ((*src == ' ' || *src == '\t') && *src != '\0') {
+                src++;
             }
-            else if(ib[i] == ' ' && !in_quotes) {
+        }
+        if (*src == '\0') break; // break if " has no value after.
+
+        if(uc->argc >= MAX_ARGUMENTS - 1) { // final index for null
+            set_error(EXCESS_ARGUMENTS, true);
+            //Set error and return excess arguments error code.
+            return EXCESS_ARGUMENTS;
+        }
+
+        uc->argv[uc->argc] = src;
+        uc->argc+=1;
+
+        // 6. Inner loop: Scan until token delimiter or closing quote
+        while (*src != '\0') {
+            // Closing quote: cut string, reset quote flag, advance past quote
+            if (*src == '\"' && inquotes) {
+                *src = '\0';
+                inquotes = 0;
+                src++;
                 break;
             }
-            i++;
-        }
 
-        if (ib[i] == ' ') {
-            ib[i] = '\0';
-            i++;
-        }
-        uc->argc++;
+            // Unquoted delimiter (space or tab): cut string and advance
+            if ((*src == ' ' || *src == '\t') && !inquotes) {
+                *src = '\0';
+                src++;
+                break;
+            }
 
-        if(uc->argc >= MAX_ARGUMENTS) {
-            return 1;
+            src++;
         }
-
     }
+    uc->argv[uc->argc] = NULL;
+
+    /* for(int i=0; i<uc->argc; i+=1) {
+        printf("%s\n", uc->argv[i]);
+    } */
     return 0;
 }
 
@@ -80,55 +96,55 @@ int tokenize_input(char* ib, command *uc) {
     number of parameters are checked here to prevent excess
     parameters to the specific command.
 */
-int cmd_ls(command *uc) {
+int cmd_ls(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_mkdir(command *uc) {
+int cmd_mkdir(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_cd(command *uc) {
+int cmd_cd(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_touch(command *uc) {
+int cmd_touch(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_sudo(command *uc) {
+int cmd_sudo(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_sysshut(command *uc) {
+int cmd_sysshut(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_cat(command *uc) {
+int cmd_cat(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_pwd(command *uc) {
+int cmd_pwd(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
 }
 
-int cmd_man(command *uc) {
+int cmd_man(Command *uc) {
     printf("%s\n", uc->argv[0]);
     set_error(UNIMPLEMENTED,true);
     return 0;
@@ -138,12 +154,12 @@ int cmd_man(command *uc) {
 
 
 int process_command(char* ib) {
-    command user_commands;
+    Command user_commands;
 
     if (tokenize_input(ib, &user_commands) != 0) {
         utils_print_color(stderr, "[WARNING] SHELL: Too many arguments!\n",
                         color_yellow);
-        set_error(TOO_MANY_ARGUMENTS, true);
+        set_error(EXCESS_ARGUMENTS, true);
         return 1;
     }
 
@@ -201,7 +217,7 @@ void start_session(void){
     }
 }
 
- int vfs_shell_init() {
+ int vfs_shell_init(void) {
     utils_print_color(stderr, "[INFO] SHELL: Shell loaded!", color_green);
     set_error(SHELL_LOADED, true);
     utils_sleep(200);

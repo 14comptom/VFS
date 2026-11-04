@@ -33,3 +33,10 @@ Thumbs.db
 *~
 
 compile_flags.txt
+
+#test files
+hello.c
+hello
+
+#compile_flags
+compile_flags.txt

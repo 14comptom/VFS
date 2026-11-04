@@ -7,6 +7,7 @@
     */
 
 #include <stdbool.h>
+#include <stdio.h>
 #include "errors.h"
 #include "utils.h"
 
@@ -22,6 +23,10 @@ typedef enum {
 
 int file_not_found(void *data, bool messgae) {
     return 0;
+}
+
+int excess_arguments(void *data, bool message) {
+    return EXCESS_ARGUMENTS;
 }
 typedef struct {
     const char* messgae;
@@ -101,9 +106,10 @@ static const ErrorInfo erro_info[ENUM_COUNT] = {
       .error_type =  WARNIGN,
   },
 
-  [TOO_MANY_ARGUMENTS] = {
+  [EXCESS_ARGUMENTS] = {
       .messgae = "[WARNING] SHELL: Too many arguments!\n",
       .error_type =  WARNIGN,
+      .handler = excess_arguments,
   },
 
   [NOT_A_COMMAND] = {

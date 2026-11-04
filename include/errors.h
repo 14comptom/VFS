@@ -17,9 +17,10 @@ typedef enum {
     SHELL_STARTING,
 
     /*  Shell*/
+
     NOT_A_COMMAND,
     UNIMPLEMENTED, // For a feature not completely implemented
-    TOO_MANY_ARGUMENTS,
+    EXCESS_ARGUMENTS, // Retuns excess arguments as return value;
 
     FILE_NOT_FOUND,
     PERMISSION_DENIED,
