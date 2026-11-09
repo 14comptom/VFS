@@ -8,6 +8,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "errors.h"
 #include "utils.h"
 
@@ -23,6 +24,15 @@ typedef enum {
 
 int file_not_found(void *data, bool messgae) {
     return 0;
+}
+
+// Force quit application in case of critical error or no current
+// handler and might cause corruption or any issues.
+int force_quit(void *data, bool message) {
+    printf("Critical error. Exiting..");
+    utils_sleep(200);
+    exit(1);
+    return 1;
 }
 
 int excess_arguments(void *data, bool message) {
@@ -99,6 +109,7 @@ static const ErrorInfo erro_info[ENUM_COUNT] = {
   [FAILED_TO_CREATE_DISK] = {
       .messgae = "[ERROR] DISK: Failed to create and write metadata!\n",
       .error_type =  ERROR,
+      .handler = force_quit,
   },
 
   [UNIMPLEMENTED] = {

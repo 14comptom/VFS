@@ -94,3 +94,26 @@ int vfs_storage_init(void){
 
 
 }
+
+/*
+ * priposed fix for windows file creation
+ *  #elif defined(_WIN32)
+     char* userprofile = getenv("USERPROFILE");
+     if (userprofile == NULL) {
+         // Fallback to local execution directory if USERPROFILE is missing
+         int fallback_len = snprintf(p, PATH_BUFFER_SIZE, "disk.vfs");
+         if (fallback_len < 0 || fallback_len >= PATH_BUFFER_SIZE) {
+             set_error(FAILED_TO_GET_DISK_PATH, true);
+             return 1;
+         }
+         set_error(FAILED_TO_GET_DISK_PATH, true);
+         return 1; // Return non-zero to signal that standard path resolution failed
+     }
+
+     int written = snprintf(p, PATH_BUFFER_SIZE, "%s\\Desktop\\disk.vfs", userprofile);
+     if (written < 0 || written >= PATH_BUFFER_SIZE) {
+         set_error(FAILED_TO_GET_DISK_PATH, true);
+         return 1;
+     }
+     return 0;
+ */
