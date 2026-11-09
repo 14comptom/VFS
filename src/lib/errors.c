@@ -151,4 +151,7 @@ void set_error(Errors error, bool print_message_to_console) {
         print_message(&erro_info[error]);
     }
 
+    erro_info[error].handler(0, "none");
+    //placeholder
+
 }

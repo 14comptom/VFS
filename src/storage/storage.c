@@ -69,9 +69,6 @@ static int get_os_path(char *p){
 static int create_disk_file(const char* p){
     FILE *disk = fopen(p, "w");
     if(disk == NULL){
-        utils_print_color(stderr,
-                        "[ERROR] DISK: Failed to create and write metadata!\n",
-                         color_red);
         set_error(FAILED_TO_CREATE_DISK, true);
         return 1;
     }
