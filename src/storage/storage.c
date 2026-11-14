@@ -9,6 +9,11 @@
 *WARNINGS   *
 *LICENCE    *Licensed under MIT License.
 */
+
+/*
+    * 2 binary files are creted, metad.vfs and disk.vfs as binary files
+    * metad holds metadata for all files and disk.vfs holds the actual user data
+ */
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -20,45 +25,86 @@
 
 #define PATH_BUFFER_SIZE 256
 
-/*
-    Check if file.vfs exists.
-    if not metadata needs to be written to it before VFS starts
-*/
-static int disk_exists(const char* p){
-    FILE *disk = fopen(p, "r");
-    if(disk == NULL){
+static int disk_exists(const char* md_p, const char* db_p){
+    FILE *metad = fopen(md_p, "rb");
+    FILE *disk = fopen(db_p, "rb");
+    if(metad == NULL || disk == NULL){
         set_error(DISK_NOT_FOUND, true);
         set_error(CREATING_DISK, true);
-        return 1;
+        return DISK_NOT_FOUND;
     }
     else {
         set_error(DISK_FOUND, true);
-        fclose(disk);
-        return 0;
     }
+
+    fclose(metad);
+    fclose(disk);
+
+    return 0;
 }
 
-static int get_os_path(char *p){
+/*
+    files mut either be at home or desktop for or from where the program was
+    ran at.
+ */
+
+static int get_os_path(char *md_p, char* db_p){
     #if defined(__linux__) || defined(__APPLE__)
         char* home = getenv("HOME");
         if(home == NULL){
             set_error(FAILED_TO_GET_DISK_PATH, true);
-            snprintf(p, PATH_BUFFER_SIZE, "disk.vfs");
+            if(
+                snprintf(md_p, PATH_BUFFER_SIZE, "metad.vfs") > PATH_BUFFER_SIZE
+                ||
+                snprintf(db_p, PATH_BUFFER_SIZE, "disk.vfs") > PATH_BUFFER_SIZE
+            ) {
+                set_error(FAILED_TO_CREATE_DISK, true);
+                return 1;
+
+            }
             return 0;
         }
 
-        snprintf(p, PATH_BUFFER_SIZE, "%s/disk.vfs", home);
+        if(
+            snprintf(md_p, PATH_BUFFER_SIZE, "%s/metad.vfs", home) >
+            PATH_BUFFER_SIZE ||
+            snprintf(db_p, PATH_BUFFER_SIZE, "%s/disk.vfs", home) >
+            PATH_BUFFER_SIZE
+        ) {
+            set_error(FAILED_TO_CREATE_DISK, true);
+            return 1;
+        }
         return 0;
-
+    /*
+        if disk path resolution fails at this point,
+        the whole system is shut down to prevent writing to
+        a non-existent file.
+     */
     #elif defined(_WIN32)
         char* userprofile = getenv("USERPROFILE");
         if(userprofile == NULL){
             set_error(FAILED_TO_GET_DISK_PATH, true);
-            snprintf(p, PATH_BUFFER_SIZE, "disk.vfs");
+            if(
+                snprintf(md_p, PATH_BUFFER_SIZE, "metad.vfs") > PATH_BUFFER_SIZE
+                ||
+                snprintf(db_p, PATH_BUFFER_SIZE, "disk.vfs") > PATH_BUFFER_SIZE
+            ) {
+                set_error(FAILED_TO_CREATE_DISK, true);
+                return 1;
+
+            }
             return 0;
         }
 
-        snprintf(p, PATH_BUFFER_SIZE, "%s\\Desktop\\disk.vfs", userprofile);
+        if(
+            snprintf(p, PATH_BUFFER_SIZE, "%s\\Desktop\\metad.vfs", userprofile)
+            > PATH_BUFFER_SIZE ||
+            snprintf(p, PATH_BUFFER_SIZE, "%s\\Desktop\\disk.vfs", userprofile)
+            > PATH_BUFFER_SIZE
+        ) {
+            set_error(FAILED_TO_CREATE_DISK, true);
+            return 1;
+        }
         return 0;
     #else
         set_error(UNSUPPORTED_PLATFORM, true);
@@ -66,51 +112,30 @@ static int get_os_path(char *p){
     #endif
 }
 
-static int create_disk_file(const char* p){
-    FILE *disk = fopen(p, "w");
-    if(disk == NULL){
+static int create_disk_file(const char* md_p, const char* db_p){
+    FILE *metad = fopen(md_p, "ab");
+    FILE *disk = fopen(db_p, "ab");
+    if(disk == NULL || metad == NULL){
         set_error(FAILED_TO_CREATE_DISK, true);
         return 1;
     }
 
-    fprintf(disk, "boot_number = 1");
-
     fclose(disk);
+    fclose(metad);
     return 0;
 }
 
 int vfs_storage_init(void){
-    char path[PATH_BUFFER_SIZE];
-    get_os_path(path);
+    char metad_path[PATH_BUFFER_SIZE];
+    char db_path[PATH_BUFFER_SIZE];
+    get_os_path(metad_path, db_path);
+    // return value is ignored since failure results to system shut down.
 
-    if(disk_exists(path) == 1){
-        create_disk_file(path);
+    if(disk_exists(metad_path, db_path) == DISK_NOT_FOUND){
+        create_disk_file(metad_path, db_path);
     }
 
     return 0;
 
 
 }
-
-/*
- * priposed fix for windows file creation
- *  #elif defined(_WIN32)
-     char* userprofile = getenv("USERPROFILE");
-     if (userprofile == NULL) {
-         // Fallback to local execution directory if USERPROFILE is missing
-         int fallback_len = snprintf(p, PATH_BUFFER_SIZE, "disk.vfs");
-         if (fallback_len < 0 || fallback_len >= PATH_BUFFER_SIZE) {
-             set_error(FAILED_TO_GET_DISK_PATH, true);
-             return 1;
-         }
-         set_error(FAILED_TO_GET_DISK_PATH, true);
-         return 1; // Return non-zero to signal that standard path resolution failed
-     }
-
-     int written = snprintf(p, PATH_BUFFER_SIZE, "%s\\Desktop\\disk.vfs", userprofile);
-     if (written < 0 || written >= PATH_BUFFER_SIZE) {
-         set_error(FAILED_TO_GET_DISK_PATH, true);
-         return 1;
-     }
-     return 0;
- */

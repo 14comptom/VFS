@@ -32,7 +32,6 @@ int force_quit(void *data, bool message) {
     printf("Critical error. Exiting..");
     utils_sleep(200);
     exit(1);
-    return 1;
 }
 
 int excess_arguments(void *data, bool message) {
@@ -104,6 +103,7 @@ static const ErrorInfo erro_info[ENUM_COUNT] = {
   [UNSUPPORTED_PLATFORM] = {
       .messgae = "[error] SYSTEM: Unsupporten Operating System\n",
       .error_type =  ERROR,
+      .handler = force_quit,
   },
 
   [FAILED_TO_CREATE_DISK] = {
@@ -151,7 +151,9 @@ void set_error(Errors error, bool print_message_to_console) {
         print_message(&erro_info[error]);
     }
 
-    erro_info[error].handler(0, "none");
+    if (erro_info[error].handler != NULL) {
+            erro_info[error].handler(NULL, false);
+    }
     //placeholder
 
 }
