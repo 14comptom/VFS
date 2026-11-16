@@ -37,6 +37,11 @@ compile_flags.txt
 #test files
 hello.c
 hello
+hello.txt
+
+#db files
+metad.vfs
+disk.vfs
 
 #compile_flags
 compile_flags.txt
