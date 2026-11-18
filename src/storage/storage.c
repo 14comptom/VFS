@@ -97,9 +97,9 @@ static int get_os_path(char *md_p, char* db_p){
         }
 
         if(
-            snprintf(p, PATH_BUFFER_SIZE, "%s\\Desktop\\metad.vfs", userprofile)
+            snprintf(md_p, PATH_BUFFER_SIZE, "%s\\Desktop\\metad.vfs", userprofile)
             > PATH_BUFFER_SIZE ||
-            snprintf(p, PATH_BUFFER_SIZE, "%s\\Desktop\\disk.vfs", userprofile)
+            snprintf(db_p, PATH_BUFFER_SIZE, "%s\\Desktop\\disk.vfs", userprofile)
             > PATH_BUFFER_SIZE
         ) {
             set_error(FAILED_TO_CREATE_DISK, true);

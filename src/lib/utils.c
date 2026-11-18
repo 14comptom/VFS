@@ -55,8 +55,8 @@ static bool convert_to_int(char* buffer, void* return_value, char* message){
     return true;
 }
 typedef enum {
-    FLOAT,
-    INT,
+    _FLOAT,
+    _INT,
     ENUM_LENGTH
 } ConvertionType;
 
@@ -70,11 +70,11 @@ typedef struct {
 } TypeConvert;
 
 static const TypeConvert type_convert[ENUM_LENGTH] = {
-    [FLOAT] = {
+    [_FLOAT] = {
         .converter = convert_to_float
     },
 
-    [INT] = {
+    [_INT] = {
         .converter = convert_to_int
     }
 };
@@ -132,9 +132,9 @@ static bool loop_prompt(
         }
 
         if (tag == INT_TAG) {
-            success = type_convert[INT].converter(buffer, output_value, message);
+            success = type_convert[_INT].converter(buffer, output_value, message);
         } else {
-           success = type_convert[FLOAT].converter(buffer, output_value, message);
+           success = type_convert[_FLOAT].converter(buffer, output_value, message);
         }
 
         if(success) break;
@@ -201,6 +201,30 @@ bool string_to_float(size_t buffer_size, char* buffer, char * message,
         tag
     );
 
+}
+
+bool utils_int(size_t buffer_size, char *buffer, char *message,
+                 int max_attempts, int *output_value)
+{
+    return string_to_int(
+        buffer_size,
+        buffer,
+        message,
+        max_attempts,
+        output_value
+    );
+}
+
+bool utils_float(size_t buffer_size, char *buffer, char *message,
+                 int max_attempts, float *output_value)
+{
+    return string_to_float(
+        buffer_size,
+        buffer,
+        message,
+        max_attempts,
+        output_value
+    );
 }
 
 /* Sleep fucntion */
