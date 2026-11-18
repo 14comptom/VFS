@@ -29,7 +29,7 @@ int file_not_found(void *data, bool messgae) {
 // Force quit application in case of critical error or no current
 // handler and might cause corruption or any issues.
 int force_quit(void *data, bool message) {
-    printf("Critical error. Exiting..");
+    utils_print_color(stderr, "Critical error. Exiting..", color_red);
     utils_sleep(200);
     exit(1);
 }

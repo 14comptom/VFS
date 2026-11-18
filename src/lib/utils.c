@@ -230,7 +230,7 @@ bool utils_float(size_t buffer_size, char *buffer, char *message,
 /* Sleep fucntion */
 
 #ifdef _WIN32
-    #include <windows.h>
+__declspec(dllimport) void __stdcall Sleep(unsigned long dwMilliseconds);
 #elif __linux__
     #include <unistd.h>
 #elif __APPLE__

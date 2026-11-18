@@ -16,6 +16,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 #include "storage.h"
@@ -84,10 +85,12 @@ static int get_os_path(char *md_p, char* db_p){
         char* userprofile = getenv("USERPROFILE");
         if(userprofile == NULL){
             set_error(FAILED_TO_GET_DISK_PATH, true);
+
+            int md_res = snprintf(md_p, PATH_BUFFER_SIZE, "metad.vfs");
+            int db_res =  snprintf(db_p, PATH_BUFFER_SIZE, "disk.vfs");
             if(
-                snprintf(md_p, PATH_BUFFER_SIZE, "metad.vfs") > PATH_BUFFER_SIZE
-                ||
-                snprintf(db_p, PATH_BUFFER_SIZE, "disk.vfs") > PATH_BUFFER_SIZE
+                md_res < 0 || md_res >= PATH_BUFFER_SIZE ||
+                db_res < 0 || db_res >= PATH_BUFFER_SIZE
             ) {
                 set_error(FAILED_TO_CREATE_DISK, true);
                 return 1;
@@ -96,11 +99,12 @@ static int get_os_path(char *md_p, char* db_p){
             return 0;
         }
 
+        int md_res = snprintf(md_p, PATH_BUFFER_SIZE, "%s\\metad.vfs", userprofile);
+        int db_res =  snprintf(db_p, PATH_BUFFER_SIZE, "%s\\disk.vfs", userprofile);
+
         if(
-            snprintf(md_p, PATH_BUFFER_SIZE, "%s\\Desktop\\metad.vfs", userprofile)
-            > PATH_BUFFER_SIZE ||
-            snprintf(db_p, PATH_BUFFER_SIZE, "%s\\Desktop\\disk.vfs", userprofile)
-            > PATH_BUFFER_SIZE
+            md_res < 0 || md_res >= PATH_BUFFER_SIZE ||
+            db_res < 0 || db_res >= PATH_BUFFER_SIZE
         ) {
             set_error(FAILED_TO_CREATE_DISK, true);
             return 1;
@@ -116,6 +120,8 @@ static int create_disk_file(const char* md_p, const char* db_p){
     FILE *metad = fopen(md_p, "ab");
     FILE *disk = fopen(db_p, "ab");
     if(disk == NULL || metad == NULL){
+        fprintf(stderr, "DEBUG: Failed to open %s | Error: %s (errno: %d)\n",
+                    md_p, strerror(errno), errno);
         set_error(FAILED_TO_CREATE_DISK, true);
         return 1;
     }
